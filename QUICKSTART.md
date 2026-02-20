@@ -1,11 +1,11 @@
-# Quick Start Guide - Resume Parser
+# Quick Start Guide - ResumeIQ
 
-Get your Resume Parser up and running in 5 minutes!
+Get your ResumeIQ Intelligence Engine up and running in 5 minutes!
 
 ## 1️⃣ Prerequisites
 
 - Python 3.8 or higher
-- pip or conda
+- A free [Groq API Key](https://console.groq.com)
 - A terminal/command prompt
 
 ## 2️⃣ Installation (2 minutes)
@@ -15,118 +15,67 @@ Get your Resume Parser up and running in 5 minutes!
 git clone https://github.com/AdityaM24/ResumeIQ.git
 cd ResumeIQ
 
-# Create virtual environment
-python -m venv venv
+# Create a virtual environment
+python3 -m venv .venv
 
 # Activate virtual environment
 # On macOS/Linux:
-source venv/bin/activate
+source .venv/bin/activate
 # On Windows:
-venv\Scripts\activate
+.venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 ```
 
-## 3️⃣ Prepare Your Data (1 minute)
+## 3️⃣ Add the Configuration
 
-Place your resume PDF files in the `data/raw_resumes/` directory:
+We use Groq (LLaMA-3.1) to power the structured intelligent extraction layer.
 
-```
-resume-parser/
-├── data/
-│   └── raw_resumes/
-│       ├── john_smith_resume.pdf
-│       ├── jane_doe_resume.pdf
-│       └── ... (more PDFs)
-```
-
-## 4️⃣ Run the Parser (1 minute)
-
+**Option A (Recommended): Environment File**
+Create a `.env` file in the root directory:
 ```bash
-# Process all resumes
-python run.py
+echo "GROQ_API_KEY=gsk_your_key_here" > .env
 ```
 
-**Output**: Check `data/processed_output/parsed_resumes.csv`
+**Option B: Dashboard Configuration**
+You can also directly paste your key into the Streamlit dashboard side-panel when you launch the UI!
 
-## 5️⃣ Analyze Results (1 minute)
+## 4️⃣ Run the Engine (1 minute)
 
+Because this is a decoupled API and Frontend architecture, you need to run **both** the backend Fastapi server and the frontend Streamlit dashboard.
+
+**Open Terminal 1 (Run Backend):**
 ```bash
-# Launch Jupyter notebook
-jupyter notebook notebooks/analysis.ipynb
+source .venv/bin/activate
+uvicorn api:app --reload
 ```
+You should see: `Uvicorn running on http://127.0.0.1:8000`
 
-## 📋 Example Output
-
-The parser generates a CSV with:
-- **Name**: Extracted candidate name
-- **Email**: Contact email address
-- **Phone**: Phone number
-- **Education**: Highest degree
-- **Skills**: Identified technical skills
-- **File**: Source PDF filename
-
-Example:
-```
-Name,Email,Phone,Education,Skills,File
-John Smith,john@example.com,1234567890,Bachelor,"Python, SQL, Machine Learning",john_smith_resume.pdf
-```
-
-## 🔧 Advanced Usage
-
-### Debug Mode
+**Open Terminal 2 (Run Frontend):**
 ```bash
-python run.py --debug
+source .venv/bin/activate
+streamlit run app.py
 ```
+This will automatically open your web browser to `http://localhost:8501`.
 
-### Custom Directories
-```bash
-python run.py --input /path/to/resumes --output-dir /path/to/output
-```
+## 5️⃣ Analyze Your Match
 
-### Custom Output File
-```bash
-python run.py --output results.csv
-```
+1. Make sure your Groq API key is defined in `.env` OR pasted into the UI Sidebar.
+2. Upload any PDF Resume.
+3. Paste a Job Description.
+4. Click **Start Analysis**.
 
-## 🧪 Run Tests
-
-```bash
-# All tests
-pytest tests/ -v
-
-# With coverage report
-pytest tests/ --cov=src --cov-report=html
-```
-
-## 📚 Full Documentation
-
-See [README.md](README.md) for comprehensive documentation.
+The intelligence engine will semantically weigh your skills and output highly structured missing skill reports, score breakdowns, and rewrite suggestions!
 
 ## ❓ Troubleshooting
 
-### Error: `No such file or directory: 'data/raw_resumes'`
-Create the directory:
-```bash
-mkdir -p data/raw_resumes
-```
+### Error: `Unexpected token` or `Failed to decode JSON`
+This means the API key is not set, or Groq tripped up on the file. Make sure your key is valid and the PDF isn't entirely an image (we only parse the text layer of PDFs so far).
 
-### Error: `ModuleNotFoundError: No module named 'fitz'`
-Install PyMuPDF:
-```bash
-pip install PyMuPDF==1.23.8
-```
+### Error: `Port 8000 is already in use`
+Change the FastAPI run port by adding `--port 8001` or similar. Remember to update `app.py`'s API target URL if you do this.
 
-### Error: `csv file not found`
-Make sure you've run `python run.py` first to generate the CSV.
+## 📚 Full Documentation
 
-## 📧 Need Help?
-
-- Check [README.md](README.md) for detailed documentation
-- See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines
-- Open an issue on GitHub for bug reports
-
-## 🎉 You're All Set!
-
-Happy parsing! 🚀
+See [README.md](README.md) for comprehensive architectural documentation.
